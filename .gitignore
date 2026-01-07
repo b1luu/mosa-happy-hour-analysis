@@ -3,6 +3,14 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+# Data outputs (privacy)
+data/raw/
+data/processed/
+exports/
+
+# Matplotlib cache
+exports/.mpl_cache/
+
 # C extensions
 *.so
 
