@@ -221,7 +221,7 @@ def plot_top_items(product_lift_path: Path, plots_dir: Path) -> list[Path]:
         top = df[df["promo_day_type"] == promo_day].sort_values(
             "total_quantity", ascending=False
         ).head(5)
-        fig, ax = plt.subplots(figsize=(8, 5))
+        fig, ax = plt.subplots(figsize=(9.5, 5.5))
         ax.barh(top["item_name"], top["total_quantity"], color="#264653")
         title_label = {
             "monday_flat_4": "Monday: Flat $4 (Fruit Tea)",
@@ -235,7 +235,8 @@ def plot_top_items(product_lift_path: Path, plots_dir: Path) -> list[Path]:
         for i, val in enumerate(top["total_quantity"].tolist()):
             ax.text(val, i, f" {val:,.0f}", va="center", fontsize=9)
         output = plots_dir / f"top_fruit_tea_items_{promo_day}.png"
-        fig.tight_layout()
+        fig.subplots_adjust(top=0.9)
+        fig.tight_layout(rect=[0, 0, 1, 0.92])
         fig.savefig(output, dpi=200)
         plt.close(fig)
         outputs.append(output)
