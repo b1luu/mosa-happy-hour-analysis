@@ -56,21 +56,21 @@ def plot_summary_by_day(summary_path: Path, plots_dir: Path) -> Path:
     if "estimated_revenue" in df.columns and sum(values) == 0:
         values = df["estimated_revenue"].tolist()
         title = "Happy Hour Estimated Revenue (Qty x Price) by Promo Day"
-    ax.bar(df["promo_label"], values, color="#2A9D8F")
+    ax.bar(df["promo_label"], values, color="#2A9D8F", width=0.6)
     ax.set_title(title)
     ax.set_xlabel("")
     ax.set_ylabel("Total Revenue")
-    fig.subplots_adjust(bottom=0.26)
+    fig.subplots_adjust(bottom=0.34)
     fig.text(
         0.5,
-        0.02,
+        0.01,
         "Happy Hour window: Mon/Wed 2–5pm (PDT), 2025-10-20 to 2025-12-31",
         ha="center",
         va="bottom",
         fontsize=9,
         color="#555555",
     )
-    ax.tick_params(axis="x", rotation=15, labelsize=9)
+    ax.tick_params(axis="x", rotation=0, labelsize=9)
     ax.yaxis.set_major_formatter(StrMethodFormatter("${x:,.0f}"))
     _annotate_bars(ax, values, "${:,.0f}")
     output = plots_dir / "hh_net_sales_by_day.png"
@@ -89,21 +89,21 @@ def plot_total_items_by_day(summary_path: Path, plots_dir: Path) -> Path:
         }
     )
     fig, ax = plt.subplots(figsize=(7, 4.5))
-    ax.bar(df["promo_label"], df["total_items"], color="#457B9D")
+    ax.bar(df["promo_label"], df["total_items"], color="#457B9D", width=0.6)
     ax.set_title("Happy Hour Total Items by Promo Day")
     ax.set_xlabel("")
     ax.set_ylabel("Total Items")
-    fig.subplots_adjust(bottom=0.26)
+    fig.subplots_adjust(bottom=0.34)
     fig.text(
         0.5,
-        0.02,
+        0.01,
         "Happy Hour window: Mon/Wed 2–5pm (PDT), 2025-10-20 to 2025-12-31",
         ha="center",
         va="bottom",
         fontsize=9,
         color="#555555",
     )
-    ax.tick_params(axis="x", rotation=15, labelsize=9)
+    ax.tick_params(axis="x", rotation=0, labelsize=9)
     ax.yaxis.set_major_formatter(StrMethodFormatter("{x:,.0f}"))
     _annotate_bars(ax, df["total_items"].tolist(), "{:,.0f}")
     output = plots_dir / "hh_total_items_by_day.png"
@@ -122,21 +122,21 @@ def plot_fruit_tea_summary(summary_path: Path, plots_dir: Path) -> Path:
         }
     )
     fig, ax = plt.subplots(figsize=(7, 4.5))
-    ax.bar(df["promo_label"], df["fruit_tea_quantity"], color="#E76F51")
+    ax.bar(df["promo_label"], df["fruit_tea_quantity"], color="#E76F51", width=0.6)
     ax.set_title("Fresh Fruit Tea Quantity by Promo Day")
     ax.set_xlabel("")
     ax.set_ylabel("Fruit Tea Quantity")
-    fig.subplots_adjust(bottom=0.26)
+    fig.subplots_adjust(bottom=0.34)
     fig.text(
         0.5,
-        0.02,
+        0.01,
         "Happy Hour window: Mon/Wed 2–5pm (PDT), 2025-10-20 to 2025-12-31",
         ha="center",
         va="bottom",
         fontsize=9,
         color="#555555",
     )
-    ax.tick_params(axis="x", rotation=15, labelsize=9)
+    ax.tick_params(axis="x", rotation=0, labelsize=9)
     ax.yaxis.set_major_formatter(StrMethodFormatter("{x:,.0f}"))
     _annotate_bars(ax, df["fruit_tea_quantity"].tolist(), "{:,.0f}")
     output = plots_dir / "fruit_tea_quantity_by_day.png"
@@ -156,21 +156,21 @@ def plot_fruit_tea_net_sales(summary_path: Path, plots_dir: Path) -> Path:
     )
     fig, ax = plt.subplots(figsize=(7, 4.5))
     values = df["fruit_tea_net_sales"].tolist() if "fruit_tea_net_sales" in df.columns else [0] * len(df)
-    ax.bar(df["promo_label"], values, color="#6D597A")
+    ax.bar(df["promo_label"], values, color="#6D597A", width=0.6)
     ax.set_title("Fresh Fruit Tea Net Sales by Promo Day")
     ax.set_xlabel("")
     ax.set_ylabel("Net Sales")
-    fig.subplots_adjust(bottom=0.26)
+    fig.subplots_adjust(bottom=0.34)
     fig.text(
         0.5,
-        0.02,
+        0.01,
         "Happy Hour window: Mon/Wed 2–5pm (PDT), 2025-10-20 to 2025-12-31",
         ha="center",
         va="bottom",
         fontsize=9,
         color="#555555",
     )
-    ax.tick_params(axis="x", rotation=15, labelsize=9)
+    ax.tick_params(axis="x", rotation=0, labelsize=9)
     ax.yaxis.set_major_formatter(StrMethodFormatter("${x:,.0f}"))
     _annotate_bars(ax, values, "${:,.0f}")
     output = plots_dir / "fruit_tea_net_sales_by_day.png"
@@ -190,21 +190,21 @@ def plot_fruit_tea_effective_price(summary_path: Path, plots_dir: Path) -> Path:
     )
     values = df["avg_price_per_item"].tolist() if "avg_price_per_item" in df.columns else [0] * len(df)
     fig, ax = plt.subplots(figsize=(7, 4.5))
-    ax.bar(df["promo_label"], values, color="#4A4E69")
+    ax.bar(df["promo_label"], values, color="#4A4E69", width=0.6)
     ax.set_title("Fresh Fruit Tea Effective Price per Drink")
     ax.set_xlabel("")
     ax.set_ylabel("Effective Price per Drink")
-    fig.subplots_adjust(bottom=0.26)
+    fig.subplots_adjust(bottom=0.34)
     fig.text(
         0.5,
-        0.02,
+        0.01,
         "Happy Hour window: Mon/Wed 2–5pm (PDT), 2025-10-20 to 2025-12-31",
         ha="center",
         va="bottom",
         fontsize=9,
         color="#555555",
     )
-    ax.tick_params(axis="x", rotation=15, labelsize=9)
+    ax.tick_params(axis="x", rotation=0, labelsize=9)
     ax.yaxis.set_major_formatter(StrMethodFormatter("${x:,.2f}"))
     _annotate_bars(ax, values, "${:,.2f}")
     output = plots_dir / "fruit_tea_effective_price_by_day.png"
@@ -218,9 +218,9 @@ def plot_top_items(product_lift_path: Path, plots_dir: Path) -> list[Path]:
     df = pd.read_csv(product_lift_path)
     outputs: list[Path] = []
     for promo_day in df["promo_day_type"].dropna().unique().tolist():
-        top = df[df["promo_day_type"] == promo_day].sort_values(
-            "total_quantity", ascending=False
-        ).head(5)
+        subset = df[df["promo_day_type"] == promo_day].copy()
+        day_total = subset["total_quantity"].sum()
+        top = subset.sort_values("total_quantity", ascending=False).head(5)
         fig, ax = plt.subplots(figsize=(9.5, 5.5))
         ax.barh(top["item_name"], top["total_quantity"], color="#264653")
         title_label = {
@@ -232,8 +232,11 @@ def plot_top_items(product_lift_path: Path, plots_dir: Path) -> list[Path]:
         ax.set_ylabel("Item Name")
         ax.invert_yaxis()
         ax.xaxis.set_major_formatter(StrMethodFormatter("{x:,.0f}"))
+        max_val = top["total_quantity"].max() if not top.empty else 0
+        ax.set_xlim(0, max_val * 1.2 if max_val else 1)
         for i, val in enumerate(top["total_quantity"].tolist()):
-            ax.text(val, i, f" {val:,.0f}", va="center", fontsize=9)
+            pct = (val / day_total * 100) if day_total else 0
+            ax.text(val + max_val * 0.02, i, f"{val:,.0f} ({pct:.0f}%)", va="center", fontsize=9)
         output = plots_dir / f"top_fruit_tea_items_{promo_day}.png"
         fig.subplots_adjust(top=0.9)
         fig.tight_layout(rect=[0, 0, 1, 0.92])
