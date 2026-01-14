@@ -1,0 +1,16 @@
+{
+  "categories": [
+    "Fresh Fruit Tea 鮮果茶系列",
+    "Fresh Fruit Tea"
+  ],
+  "name_keywords": [
+    "Fresh Mango Tea",
+    "Fresh Strawberry Tea",
+    "Fresh Apple Tea",
+    "Fresh Grapefruit Tea",
+    "Fresh Orange Tea",
+    "Fresh Lemon Tea"
+  ],
+  "name_regex": [],
+  "sku_allowlist": []
+}

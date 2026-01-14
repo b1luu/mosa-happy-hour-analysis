@@ -115,6 +115,97 @@ def _add_section_divider(prs: Presentation, title: str, subtitle: str) -> None:
     _style_body(subtitle_tf, size=18)
 
 
+def _format_pct(value: float | None) -> str:
+    if value is None or not isinstance(value, (int, float)) or value != value:
+        return "n/a"
+    return f"{value * 100:.1f}%"
+
+
+def _format_ratio(value: float | None) -> str:
+    if value is None or not isinstance(value, (int, float)) or value != value:
+        return "n/a"
+    return f"{value:.2f}"
+
+
+def _classify_result(baseline_ratio: float, promo_ratio: float, delta_lift: float) -> str:
+    if baseline_ratio != baseline_ratio or promo_ratio != promo_ratio or delta_lift != delta_lift:
+        return "Insufficient data for a confident call."
+    ratio_change = (promo_ratio - baseline_ratio) / baseline_ratio if baseline_ratio else 0
+    if abs(ratio_change) <= 0.05 and abs(delta_lift) <= 0.05:
+        return "Mostly traffic-driven"
+    if ratio_change < -0.1 or delta_lift < -0.1:
+        return "Promo appeal differs"
+    if ratio_change > 0.1 or delta_lift > 0.1:
+        return "Monday promo over-indexes"
+    return "Mixed signal"
+
+
+def _add_baseline_vs_hh_slide(
+    prs: Presentation,
+    summary_df,
+    net_ratio_chart: Path,
+    tph_ratio_chart: Path,
+) -> None:
+    slide = prs.slides.add_slide(prs.slide_layouts[5])
+    title_box = slide.shapes.add_textbox(Inches(0.6), Inches(0.3), Inches(12.0), Inches(0.6))
+    title_tf = title_box.text_frame
+    title_tf.text = "Baseline vs Happy Hour (Mon vs Wed)"
+    _style_title(title_tf, size=30)
+
+    left = Inches(0.6)
+    top = Inches(1.2)
+    chart_width = Inches(5.6)
+    chart_height = Inches(3.7)
+    if net_ratio_chart.exists():
+        slide.shapes.add_picture(str(net_ratio_chart), left, top, width=chart_width, height=chart_height)
+    if tph_ratio_chart.exists():
+        slide.shapes.add_picture(str(tph_ratio_chart), Inches(6.3), top, width=chart_width, height=chart_height)
+
+    sample = "no_outliers" if summary_df is not None and (summary_df["sample"] == "no_outliers").any() else "all_days"
+    net_row = None
+    tph_row = None
+    if summary_df is not None:
+        net_sel = summary_df[(summary_df["metric"] == "net_sales_hh") & (summary_df["sample"] == sample)]
+        tph_sel = summary_df[(summary_df["metric"] == "transactions_per_hour") & (summary_df["sample"] == sample)]
+        if not net_sel.empty:
+            net_row = net_sel.iloc[0]
+        if not tph_sel.empty:
+            tph_row = tph_sel.iloc[0]
+
+    table_lines = ["Lift vs baseline (HH window):"]
+    if net_row is not None:
+        table_lines.append(
+            f"Net Sales: Mon {_format_pct(net_row['lift_mon'])} vs Wed {_format_pct(net_row['lift_wed'])} "
+            f"(delta {_format_pct(net_row['delta_lift'])})."
+        )
+    if tph_row is not None:
+        table_lines.append(
+            f"TPH: Mon {_format_pct(tph_row['lift_mon'])} vs Wed {_format_pct(tph_row['lift_wed'])} "
+            f"(delta {_format_pct(tph_row['delta_lift'])})."
+        )
+
+    interpretation = None
+    if tph_row is not None:
+        interpretation = _classify_result(
+            baseline_ratio=tph_row["baseline_ratio"],
+            promo_ratio=tph_row["promo_ratio"],
+            delta_lift=tph_row["delta_lift"],
+        )
+
+    text_box = slide.shapes.add_textbox(Inches(0.6), Inches(5.1), Inches(12.0), Inches(2.2))
+    tf = text_box.text_frame
+    tf.text = table_lines[0]
+    for line in table_lines[1:]:
+        p = tf.add_paragraph()
+        p.text = line
+        p.level = 1
+    if interpretation:
+        p = tf.add_paragraph()
+        p.text = f"Conclusion: {interpretation}."
+        p.level = 0
+    _style_body(tf, size=16)
+
+
 def main() -> None:
     project_root = get_project_root()
     plots_dir = project_root / "exports" / "plots"
@@ -123,10 +214,14 @@ def main() -> None:
     fruit_summary = project_root / "exports" / "fruit_tea_summary_by_promo_day.csv"
     summary_df = None
     fruit_df = None
+    baseline_summary = None
     if summary_by_day.exists():
         summary_df = __import__("pandas").read_csv(summary_by_day)
     if fruit_summary.exists():
         fruit_df = __import__("pandas").read_csv(fruit_summary)
+    summary_table = project_root / "exports" / "summary_table.csv"
+    if summary_table.exists():
+        baseline_summary = __import__("pandas").read_csv(summary_table)
 
     def _get_metric(df, promo, col):
         if df is None or col not in df.columns:
@@ -211,6 +306,15 @@ def main() -> None:
     for title, path, caption in image_map:
         if path.exists():
             _add_image_slide(prs, title, path, caption)
+
+    if baseline_summary is not None:
+        _add_section_divider(prs, "Baseline vs Happy Hour", "Mon vs Wed ratios and lift")
+        _add_baseline_vs_hh_slide(
+            prs,
+            baseline_summary,
+            plots_dir / "ratio_net_sales_baseline_vs_promo.png",
+            plots_dir / "ratio_tph_baseline_vs_promo.png",
+        )
 
     _add_section_divider(prs, "Interpretation", "What the results suggest")
     _add_text_slide(

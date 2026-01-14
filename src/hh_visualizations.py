@@ -246,6 +246,41 @@ def plot_top_items(product_lift_path: Path, plots_dir: Path) -> list[Path]:
     return outputs
 
 
+def plot_ratio_comparison(
+    summary_path: Path,
+    plots_dir: Path,
+    metric: str,
+    title: str,
+    output_name: str,
+    sample: str = "no_outliers",
+) -> Path | None:
+    if not summary_path.exists():
+        return None
+    df = pd.read_csv(summary_path)
+    row = df[(df["metric"] == metric) & (df["sample"] == sample)]
+    if row.empty:
+        row = df[(df["metric"] == metric) & (df["sample"] == "all_days")]
+    if row.empty:
+        return None
+
+    baseline_ratio = float(row.iloc[0]["baseline_ratio"])
+    promo_ratio = float(row.iloc[0]["promo_ratio"])
+
+    fig, ax = plt.subplots(figsize=(5.2, 4.0))
+    labels = ["Baseline", "Promo"]
+    values = [baseline_ratio, promo_ratio]
+    ax.bar(labels, values, color=["#457B9D", "#E76F51"], width=0.55)
+    ax.set_title(title)
+    ax.set_ylabel("Mon / Wed Ratio")
+    ax.yaxis.set_major_formatter(StrMethodFormatter("{x:.2f}"))
+    _annotate_bars(ax, values, "{:.2f}")
+    fig.tight_layout()
+    output = plots_dir / output_name
+    fig.savefig(output, dpi=200)
+    plt.close(fig)
+    return output
+
+
 def main() -> None:
     project_root = get_project_root()
     exports_dir = project_root / "exports"
@@ -256,6 +291,7 @@ def main() -> None:
     summary_by_day = exports_dir / "hh_summary_by_promo_day.csv"
     fruit_tea_summary = exports_dir / "fruit_tea_summary_by_promo_day.csv"
     product_lift = exports_dir / "fruit_tea_product_lift_by_promo_day.csv"
+    summary_table = exports_dir / "summary_table.csv"
 
     saved: list[Path] = []
     saved.append(plot_summary_by_day(summary_by_day, plots_dir))
@@ -264,6 +300,24 @@ def main() -> None:
     saved.append(plot_fruit_tea_net_sales(fruit_tea_summary, plots_dir))
     saved.append(plot_fruit_tea_effective_price(fruit_tea_summary, plots_dir))
     saved.extend(plot_top_items(product_lift, plots_dir))
+    ratio_net_sales = plot_ratio_comparison(
+        summary_table,
+        plots_dir,
+        metric="net_sales_hh",
+        title="Mon/Wed Ratio (Net Sales)",
+        output_name="ratio_net_sales_baseline_vs_promo.png",
+    )
+    if ratio_net_sales is not None:
+        saved.append(ratio_net_sales)
+    ratio_tph = plot_ratio_comparison(
+        summary_table,
+        plots_dir,
+        metric="transactions_per_hour",
+        title="Mon/Wed Ratio (Transactions/Hour)",
+        output_name="ratio_tph_baseline_vs_promo.png",
+    )
+    if ratio_tph is not None:
+        saved.append(ratio_tph)
 
     print("\nSaved plots:")
     for path in saved:

@@ -4,8 +4,7 @@ __pycache__/
 *$py.class
 
 # Data outputs (privacy)
-data/raw/
-data/processed/
+data/
 exports/
 
 # Matplotlib cache
